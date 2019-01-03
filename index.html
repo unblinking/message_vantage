@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!-- copyright 2006 joshua michael gray comnetcomnet.com -->
+<head>
+	<title>Message Vantage</title>
+	<link rel="stylesheet" type="text/css" href="styles/mv_styles.css" />
+	<script type="text/javascript" src="prototype.js"></script>
+	<script type="text/javascript" src="mv.js"></script>
+	<meta name="keywords" content="message vantage messages groups subscribers email list" />
+	<meta name="description" content="message vantage - for managing email lists and sending emails - handles saved email messages, subscriber records, and subscriber groups." />
+	<meta name="revised" content="joshua michael gray, 2006-03-20" />
+	<meta name="copyright" content="&copy; 2006 joshua michael gray comnetcomnet.com" />
+</head>
+<body>
+
+<table class="main">	<!-- begin title bar table -->
+	<tr>
+		<td>
+			<p class="title_bar">
+				Message Vantage v1.4
+			</p>
+		</td>
+	</tr>
+</table>	<!-- end title bar table -->
+
+<table class="main">	<!-- begin main table -->
+	<tr>
+		<td class="menu" style="vertical-align: top;">
+			<fieldset>	<!-- begin message menu -->
+				<legend>Messages</legend>
+				<a href="#" onclick="clearTargets(); CreateMessage1()">Create message</a><br />
+				<a href="#" onclick="clearTargets(); PreviewMessage1()">Preview message</a><br />
+				<a href="#" onclick="clearTargets(); EditMessage1()">Edit message</a><br />
+				<a href="#" onclick="clearTargets(); DeleteMessage1()">Delete message</a>
+			</fieldset>	<!-- end message menu -->
+			<br />
+			<fieldset>	<!-- begin group menu -->
+				<legend>Groups</legend>
+				<a href="#" onclick="clearTargets(); CreateGroup1()">Create group</a><br />
+				<a href="#" onclick="clearTargets(); EditGroup1()">Edit group</a><br />
+				<a href="#" onclick="clearTargets(); DeleteGroup1()">Delete group</a>
+			</fieldset>	<!-- end group menu -->
+			<br />
+			<fieldset>	<!-- begin subscriber menu -->
+				<legend>Subscribers</legend>
+				<a href="#" onclick="clearTargets(); CreateSubscriber1()">Create subscriber</a><br />
+				<a href="#" onclick="clearTargets(); EditSubscriber1()">Edit subscriber</a><br />
+				<a href="#" onclick="clearTargets(); DeleteSubscriber1()">Delete subscriber</a>
+			</fieldset>	<!-- end subscriber menu -->
+			<br />
+			<fieldset>	<!-- begin broadcast menu -->
+				<legend>Broadcast</legend>
+				<a href="#" onclick="clearTargets(); SendMessages1()">Send messages</a><br />
+				<a href="#" onclick="clearTargets(); ViewHistory1()">View history</a>
+			</fieldset>	<!-- end broadcast menu -->
+		</td>
+		<td class="body" style="vertical-align: top;">
+			<div class="targets" id="load" style="display:none"><fieldset class="loading"><b>waiting for server response.</b></fieldset></div>
+			<div class="targets" id="message"></div>
+			<div class="targets" id="one"></div>
+			<div class="targets" id="two"></div>
+			<div class="targets" id="three"></div>
+			<div class="targets" id="four"></div>
+			<div class="targets" id="five"></div>
+			<div class="logo" id="logo">
+				<table class="logo">
+					<tr>
+						<td>
+							<p class="logo">
+								<img src="images/logo.jpg" alt="Message Vantage v1.4" />
+							</p>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</td>
+	</tr>
+</table>	<!-- end main table -->
+
+</body>
+</html>

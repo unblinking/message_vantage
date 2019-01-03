@@ -1,0 +1,148 @@
+
+
+sub new_message_file	{
+my ($dir,$filename,$body) = @_;
+open (MESSAGE, ">$dir/$filename") or die "Error saving new message file.\nCannot open message file at $dir/$filename : $!\n";
+print MESSAGE $body;
+close (MESSAGE);
+}
+
+sub new_subscriber_record	{
+my ($dir, $filename, $record) = @_;
+open (SUBSCRIBERS, ">>$dir/$filename") or die "Error saving new subscriber record.\nCannot open subscriber file at $dir/$filename : $!\n";
+print SUBSCRIBERS "$record\n";
+close (SUBSCRIBERS);
+}
+
+sub dbaSetCommon {	# return true if two arrays intersect
+   my ($setRef1, $setRef2) = @_;
+   my $return_value = 0;
+   foreach my $e1 (@$setRef1){
+       foreach my $e2 (@$setRef2){
+           if ($e1 eq $e2){
+              $return_value = 1;
+           }
+       }
+   }
+   return $return_value;
+}
+
+sub unique_existing_emails	{
+my ($dir, $filename) = @_;
+my @unique_emails = '';
+open (SUBSCRIBERS, "$dir/$filename") or die "Error reading unique existing emails.\nCannot open subscriber file at $dir/$filename : $!\n";
+	while (<SUBSCRIBERS>)	{
+		chomp ($_);
+		(my $last,my $first,my $email,my $groups) = split(/\|/,$_,4);
+		push(@unique_emails, $email);
+	}
+close (SUBSCRIBERS);
+	my @unique_emails = do { my %seen; grep !$seen{$_}++, @unique_emails };
+	@unique_emails = grep /\S/, @unique_emails;
+	@unique_emails = sort (@unique_emails);
+	return @unique_emails;
+}
+
+sub unique_existing_groups	{
+my ($dir, $filename) = @_;
+my @all_groups = '';
+open (SUBSCRIBERS, "$dir/$filename") or die "Error reading unique existing groups.\nCannot open subscriber file at $dir/$filename : $!\n";
+	while (<SUBSCRIBERS>)	{
+		chomp ($_);
+		(my $last,my $first,my $email,my $groups) = split(/\|/,$_,4);
+		my @one_users_groups = split(/,/,$groups);
+		@all_groups=(@all_groups,@one_users_groups);
+	}
+close (SUBSCRIBERS);
+	my @unique_groups = do { my %seen; grep !$seen{$_}++, @all_groups };
+	@unique_groups = grep /\S/, @unique_groups;
+	@unique_groups = sort (@unique_groups);
+	return @unique_groups;
+}
+
+sub notify_box	{
+my ($legend_text, $notify_text) = @_;
+print <<"EOFEOF";
+	<fieldset>
+		<legend>$legend_text</legend>
+		$notify_text
+	</fieldset>
+EOFEOF
+}
+
+sub time_stamp	{
+	my @months = qw(01 02 03 04 05 06 07 08 09 10 11 12);
+	my @weekdays = qw(Sun Mon Tue Wed Thu Fri Sat Sun);
+	(my $second, my $minute, my $hour, my $dayofmonth, my $month, my $yearoffset, my $dayofweek, my $dayofyear, my $daylightsaving) = localtime();
+	my $year = 1900 + $yearoffset;
+	my $timeStamp = "DATE $year $months[$month] $dayofmonth TIME $hour $minute $second $weekdays[$dayofweek]";
+	return $timeStamp;
+}
+
+sub bad_email_address_format ($) {
+	my ($addr) = @_;
+	my $atext = qr/[A-Za-z0-9\!\#\$\%\&\'\*\+\-\/\=\?\^\_\`\{\|\+\~]/;
+	my $dot_atom_text = qr/$atext+(\.$atext+)*/;
+
+	my $no_ws_ctl_char = qr/[\x01-\x08\x0b\x0c\x0e-\x1f\x7f]/;
+	my $qtext_char = qr/([\x21\x23-\x5b\x5d-\x7e]|$no_ws_ctl_char)/;
+	my $text = qr/[\x01-\x09\x0b\x0c\x0e-\x7f]/;
+	my $qtext = qr/($qtext_char|\\$text)*/;
+	my $quoted_string = qr/"$qtext"/;
+
+	my $quotedpair = qr/\\$text/;
+	my $dtext = qr/[\x21-\x5a\x5e-\x7e\x01-\x08\x0b\x0c\x0e-\x1f\x7f]/;
+	my $dcontent = qr/($dtext|$quotedpair)/;        
+	my $domain_literal = qr/\[(${dcontent})*\]/;
+
+	if ( $addr =~ /^($dot_atom_text|$quoted_string)\@($dot_atom_text|$domain_literal)$/ ) { 
+		return 0;	# false if good email address format
+	}	else	{
+		return 1;	# true if bad email address format
+	}
+}
+
+sub message_composition	{
+my ($filename, $message_body) = @_;
+print <<"EOFEOF";
+	<form id="create_message_1">
+	<fieldset>
+		<legend>Message Filename</legend>
+		<p>
+			This is the filename to save the message as. Filenames are case sensitive and may not contain special characters.<br />
+		</p>
+		<input name="message_name" id="message_name" size="50" value="$filename" />
+	</fieldset>
+	<fieldset>
+		<legend>Message Body</legend>
+		<p>
+			In the text area below, edit the email message. Both plain text and HTML are allowed. If you use HTML, you <strong>MUST</strong> include proper html and body tags, <strong>AND</strong> your customers <strong>MUST</strong> have <i>html enabled</i> email. If you use plain text, include <strong>ONLY</strong> the message text.
+		</p>
+		<textarea name="message_body" id="message_body" rows="20" cols="60">$message_body</textarea>
+		<p>
+			You can <strong>personalize your messages</strong> by using special variable names which will be replaced during script execution. When using these variables, be sure to use all capitalized letters exactly as they appear below. These special variables can be used both in the email subject line and the email body. The available variables are:
+			<br />
+			&nbsp; <i>Customer's first name: CFNCFN</i><br />
+			&nbsp; <i>Customer's last name: CLNCLN</i><br />
+			&nbsp; <i>Customer's email address: CEACEA</i>
+		</p>
+		<p>
+			HTML references to web based files must specify the complete HTTP address.	For example:
+			<br />
+			&lt;img src="http://www.yourdomain.com/yourimagefile.jpg" alt="image description" /&gt;
+			<br />
+			or
+			<br />
+			&lt;a href="http://www.yourdomain.com/yourfile.html"&gt;click here&lt;/a&gt;
+		</p>
+	</fieldset>
+	<fieldset>
+		<p>
+			<b><a href="#" onclick="CreateMessage2(); clearTarget1()">SAVE THIS MESSAGE</a></b>
+		</p>
+	</fieldset>
+	</form>
+EOFEOF
+}
+
+1;
